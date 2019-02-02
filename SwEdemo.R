@@ -6,9 +6,9 @@
 require(Rfast)
 
 # Assuming the 'block' is school...
-Nschool = 200
-Nstud   = 40      # Number of students pers school
-Nelm    = 10000   # Number of vertices/voxels
+Nschool = 15
+Nstud   = 4       # Number of students pers school
+Nelm    = 32492   # Number of vertices/voxels
 rho     = 0.95    # Intraschool correlation... maxed out to verify SwE is working
 
 
@@ -42,17 +42,20 @@ SE.swe = matrix(0,nrow=P,ncol=Nelm)
 
 Ischool= rep(1:Nschool,each=Nstud)
 Bread  = solve(t(X)%*%X)
-# There *must* be a way to vectorise this, at least for each school... but I can't 
-# figure it out
-for (i in 1:Nelm) {
-    Meat=matrix(0,nrow=P,ncol=P)
-    for (s in 1:Nschool) {
-        I=(s==Ischool)
-        Meat=Meat+(t(X[I,])%*%res[I,i])%*%(t(res[I,i])%*%X[I,])
-    }
-    S = Bread%*%Meat%*%Bread
-    SE.swe[,i]=sqrt(diag(S))
+BreadX = Bread%*%t(X)
+S      = array(0,dim=c(P,P,Nelm))
+S0     = array(0,dim=c(1,P,Nelm))
+for (s in 1:Nschool) {
+#    Meat=matrix(0,nrow=P,ncol=P)
+    I=(s==Ischool)
+    Ns=sum(I)
+    # half of Meat times t(BreadX)
+    S0[] = apply(array(res[I,],c(1,Ns,Nelm)),3,function(x)x%*%t(BreadX[,I]))
+    # Full `Bread*Meat*Bread' contribution for school s
+    S = S + array(apply(S0,3,function(x)outer(x,x)),dim=c(P,P,Nelm))
 }
+
+SE.swe[]=apply(S,3,diag)
 T.swe = fit$be/SE.swe
 
 cat("SwE: ");Sys.time()-start_time
@@ -61,4 +64,5 @@ T.sd=c(ols=sd(T.ols[2,]),swe=sd(T.swe[2,]))
 
 cat("Standard deviation of T scores for between school covariate... should be 1.0\n")
 print(T.sd)
+
 
