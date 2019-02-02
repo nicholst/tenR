@@ -66,29 +66,5 @@ cat("Standard deviation of T scores for between school covariate... should be 1.
 print(T.sd)
 
 
-## # Computation of SwE standard errors
-## start_time <- Sys.time()
-
-## SE.swe.old = matrix(0,nrow=P,ncol=Nelm)
-
-## # Compare to old way
-## for (i in 1:Nelm) {
-##     Meat=matrix(0,nrow=P,ncol=P)
-##     S.old0=matrix(0,nrow=P,ncol=P)
-##     for (s in 1:Nschool) {
-##         I=(s==Ischool)
-##         Meat=Meat+(t(X[I,])%*%res[I,i])%*%(t(res[I,i])%*%X[I,])
-##        ## S.old0=S.old0+BreadX[,I]%*%res[I,i]%*%t(res[I,i])%*%t(BreadX[,I])
-##        ##  a0=BreadX[,I]%*%res[I,i]%*%t(res[I,i])%*%t(BreadX[,I])
-##        ##  a11=t(res[I,i])%*%t(BreadX[,I])
-##        ##  a1=t(a11)%*%a11
-##     }
-##     S.old = Bread%*%Meat%*%Bread
-##     SE.swe.old[,i]=sqrt(diag(S.old))
-##  }
-## T.swe.old = fit$be/SE.swe.old
- 
-## cat("SwE old: ");Sys.time()-start_time
-
 
 
