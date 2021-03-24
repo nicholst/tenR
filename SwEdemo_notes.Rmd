@@ -1,0 +1,76 @@
+---
+title: "SwEdemo Notes"
+author: "T Nichols"
+date: "24/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This provides the math-mode exposition of the computational strategy used in the `SwEdemo.R` R script. 
+
+## Set up
+
+For data $Y$ with $N$ observations and design matrix $X$ with $P$ predictors, let the OLS estimator of the GLM
+$$
+Y=X\beta+\epsilon
+$$
+be 
+$$
+\hat\beta_{\mathrm{OLS}} = (X^\top X)^{-1}X^\top Y,
+$$
+and let the OLS residuals be
+$$
+e = Y-X\hat\beta_{\mathrm{OLS}}.
+$$
+
+We allow for dependence among $B$ groups or clusters of observations. Specifically let the model be partitioined row-wise such that
+$$
+Y^\top = (Y_1,Y_2,...,Y_i,...,Y_{B})^\top
+$$
+$$
+X^\top = (X_1,X_2,...,X_i,...,X_{B})^\top
+$$
+$$
+\epsilon^\top = (\epsilon_1,\epsilon_2,...,\epsilon_i,...,\epsilon_{B})^\top,
+$$
+werhe $Var(\epsilon_{i})=V_i$, and $\epsilon_{i}$ and $\epsilon_{i'}$ are mutually independent for any $i\neq i'$.
+
+## Robust / Sandwich estimator of variance
+
+The following estimator of $Var(\hat\beta_{\mathrm{OLS}})$ is asymtotically consistent as $B$ grows:
+
+$$
+S = (X^\top X)^{-1} \left(\sum_{i=1}^B X_i^\top \hat{V}_i X_i\right) (X^\top X)^{-1}
+$$
+where the variance for block $i$ is estimated naively
+$$
+e_i = e_i e_i^\top.
+$$
+
+## Reformulation for efficient computation
+ 
+To accelerate the computation we must obtain formulations that accomodate $Y$ having the structure of a large matrix with $N_{\mathrm{elm}}$ columns, such that $\hat\beta$ and $e$ will also have  $N_{\mathrm{elm}}$ columns.
+
+OLS estimation trivially generalises, as $(X^\top X)^{-1}X^\top$ operates as a left-multiplication of an matrix with $N$ rows and an arbitrary number of columns.
+
+The variance estimator can also be reformulated
+
+$$
+\begin{eqnarray}
+ S &=&  (X^\top X)^{-1} \left(\sum_{i=1}^B X_i^\top \hat{V}_i X_i\right) (X^\top X)^{-1}\\
+   &=& \sum_{i=1}^B (X^\top X)^{-1}  X_i^\top \hat{V}_i X_i (X^\top X)^{-1}\\
+   &=& \sum_{i=1}^B (X^\top X)^{-1}  X_i^\top e_i e_i^\top X_i (X^\top X)^{-1}\\
+   &=& \sum_{i=1}^B E_i E_i^\top,
+\end{eqnarray}
+$$
+where
+$$
+E_i = (X^\top X)^{-1}X_i^\top e_i
+$$
+can be configured as a $P\times 1\times N_{\mathrm{elm}}$ multi-way array, and then an outer product of the first two dimensions will lead to a computation of $S$ as a $P\times P \times  N_{\mathrm{elm}}$ array.
+
+
+
