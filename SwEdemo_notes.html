@@ -379,27 +379,27 @@ Y=X\beta+\epsilon
 \]</span> and let the OLS residuals be <span class="math display">\[
 e = Y-X\hat\beta_{\mathrm{OLS}}.
 \]</span></p>
-<p>We allow for dependence among <span class="math inline">\(B\)</span> groups or clusters of observations. Specifically let the model be partitioined row-wise such that <span class="math display">\[
+<p>We allow for dependence among <span class="math inline">\(B\)</span> groups or clusters of observations. Specifically let the model be partitioned row-wise such that <span class="math display">\[
 Y^\top = (Y_1,Y_2,...,Y_i,...,Y_{B})^\top
 \]</span> <span class="math display">\[
 X^\top = (X_1,X_2,...,X_i,...,X_{B})^\top
 \]</span> <span class="math display">\[
 \epsilon^\top = (\epsilon_1,\epsilon_2,...,\epsilon_i,...,\epsilon_{B})^\top,
-\]</span> werhe <span class="math inline">\(Var(\epsilon_{i})=V_i\)</span>, and <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{i&#39;}\)</span> are mutually independent for any <span class="math inline">\(i\neq i&#39;\)</span>.</p>
+\]</span> where <span class="math inline">\(Var(\epsilon_{i})=V_i\)</span>, and <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{i&#39;}\)</span> are mutually independent for any <span class="math inline">\(i\neq i&#39;\)</span>.</p>
 </div>
 <div id="robust-sandwich-estimator-of-variance" class="section level2">
 <h2>Robust / Sandwich estimator of variance</h2>
-<p>The following estimator of <span class="math inline">\(Var(\hat\beta_{\mathrm{OLS}})\)</span> is asymtotically consistent as <span class="math inline">\(B\)</span> grows:</p>
+<p>The following estimator of <span class="math inline">\(Var(\hat\beta_{\mathrm{OLS}})\)</span> is consistent as <span class="math inline">\(B\)</span> grows:</p>
 <p><span class="math display">\[
 S = (X^\top X)^{-1} \left(\sum_{i=1}^B X_i^\top \hat{V}_i X_i\right) (X^\top X)^{-1}
 \]</span> where the variance for block <span class="math inline">\(i\)</span> is estimated naively <span class="math display">\[
 e_i = e_i e_i^\top.
-\]</span></p>
+\]</span> In particular, note that there are no assumptions about the form of each <span class="math inline">\(V_i\)</span>… there is no assumption about constant variance or homogeneous intra-block correlation.</p>
 </div>
 <div id="reformulation-for-efficient-computation" class="section level2">
 <h2>Reformulation for efficient computation</h2>
-<p>To accelerate the computation we must obtain formulations that accomodate <span class="math inline">\(Y\)</span> having the structure of a large matrix with <span class="math inline">\(N_{\mathrm{elm}}\)</span> columns, such that <span class="math inline">\(\hat\beta\)</span> and <span class="math inline">\(e\)</span> will also have <span class="math inline">\(N_{\mathrm{elm}}\)</span> columns.</p>
-<p>OLS estimation trivially generalises, as <span class="math inline">\((X^\top X)^{-1}X^\top\)</span> operates as a left-multiplication of an matrix with <span class="math inline">\(N\)</span> rows and an arbitrary number of columns.</p>
+<p>To accelerate the computation we must obtain formulations that accommodate <span class="math inline">\(Y\)</span> having the structure of a large matrix with <span class="math inline">\(N_{\mathrm{elm}}\)</span> columns, such that <span class="math inline">\(\hat\beta\)</span> and <span class="math inline">\(e\)</span> will also have <span class="math inline">\(N_{\mathrm{elm}}\)</span> columns.</p>
+<p>OLS estimation trivially generalizes, as <span class="math inline">\((X^\top X)^{-1}X^\top\)</span> operates as a left-multiplication of an matrix with <span class="math inline">\(N\)</span> rows and an arbitrary number of columns.</p>
 <p>The variance estimator can also be reformulated</p>
 <p><span class="math display">\[
 \begin{eqnarray}

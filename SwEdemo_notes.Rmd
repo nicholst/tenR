@@ -26,7 +26,7 @@ $$
 e = Y-X\hat\beta_{\mathrm{OLS}}.
 $$
 
-We allow for dependence among $B$ groups or clusters of observations. Specifically let the model be partitioined row-wise such that
+We allow for dependence among $B$ groups or clusters of observations. Specifically let the model be partitioned row-wise such that
 $$
 Y^\top = (Y_1,Y_2,...,Y_i,...,Y_{B})^\top
 $$
@@ -36,11 +36,11 @@ $$
 $$
 \epsilon^\top = (\epsilon_1,\epsilon_2,...,\epsilon_i,...,\epsilon_{B})^\top,
 $$
-werhe $Var(\epsilon_{i})=V_i$, and $\epsilon_{i}$ and $\epsilon_{i'}$ are mutually independent for any $i\neq i'$.
+where $Var(\epsilon_{i})=V_i$, and $\epsilon_{i}$ and $\epsilon_{i'}$ are mutually independent for any $i\neq i'$.
 
 ## Robust / Sandwich estimator of variance
 
-The following estimator of $Var(\hat\beta_{\mathrm{OLS}})$ is asymtotically consistent as $B$ grows:
+The following estimator of $Var(\hat\beta_{\mathrm{OLS}})$ is consistent as $B$ grows:
 
 $$
 S = (X^\top X)^{-1} \left(\sum_{i=1}^B X_i^\top \hat{V}_i X_i\right) (X^\top X)^{-1}
@@ -49,12 +49,13 @@ where the variance for block $i$ is estimated naively
 $$
 e_i = e_i e_i^\top.
 $$
+In particular, note that there are no assumptions about the form of each $V_i$... there is no assumption about constant variance or homogeneous intra-block correlation.
 
 ## Reformulation for efficient computation
  
-To accelerate the computation we must obtain formulations that accomodate $Y$ having the structure of a large matrix with $N_{\mathrm{elm}}$ columns, such that $\hat\beta$ and $e$ will also have  $N_{\mathrm{elm}}$ columns.
+To accelerate the computation we must obtain formulations that accommodate $Y$ having the structure of a large matrix with $N_{\mathrm{elm}}$ columns, such that $\hat\beta$ and $e$ will also have  $N_{\mathrm{elm}}$ columns.
 
-OLS estimation trivially generalises, as $(X^\top X)^{-1}X^\top$ operates as a left-multiplication of an matrix with $N$ rows and an arbitrary number of columns.
+OLS estimation trivially generalizes, as $(X^\top X)^{-1}X^\top$ operates as a left-multiplication of an matrix with $N$ rows and an arbitrary number of columns.
 
 The variance estimator can also be reformulated
 
