@@ -2,12 +2,13 @@
 # Attempting to find minimum run time for mass-univariate application of sandwich estimator
 #
 # T. Nichols 1 Feb 2019
+# See https://github.com/nicholst/tenR/blob/master/LICENSE
 
 require(Rfast)
 
 # Assuming the 'block' is school...
-Nschool = 200
-Nstud   = 40      # Number of students pers school
+Nschool = 15
+Nstud   = 4       # Number of students pers school
 Nelm    = 32492   # Number of vertices/voxels
 rho     = 0.95    # Intraschool correlation... maxed out to verify SwE is working
 
@@ -64,6 +65,7 @@ T.sd=c(ols=sd(T.ols[2,]),swe=sd(T.swe[2,]))
 
 cat("Standard deviation of T scores for between school covariate... should be 1.0\n")
 print(T.sd)
+
 
 
 
