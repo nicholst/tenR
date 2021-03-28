@@ -412,6 +412,26 @@ e_i = e_i e_i^\top.
 E_i = (X^\top X)^{-1}X_i^\top e_i
 \]</span> can be configured as a <span class="math inline">\(P\times 1\times N_{\mathrm{elm}}\)</span> multi-way array, and then an outer product of the first two dimensions will lead to a computation of <span class="math inline">\(S\)</span> as a <span class="math inline">\(P\times P \times N_{\mathrm{elm}}\)</span> array.</p>
 </div>
+<div id="global-working-covariance" class="section level2">
+<h2>Global Working Covariance</h2>
+<p>Using a voxel-specific working covariance precludes the use of easy vectorisation. However, if the working covariance is global, then the method is still suitable for vectorisation.</p>
+<p>The usual way this estimate is written is <span class="math display">\[
+\hat\beta_{\mathrm{G}} = \left(\sum_i X_i^\top W_{\mathrm{G}i} X_i\right)^{-1}\sum_iX_i^\top W_{\mathrm{G}i}Y_i,
+\]</span> where <span class="math inline">\(W_{\mathrm{G}i}=V_{\mathrm{G}i}^{-1}\)</span> and <span class="math inline">\(V_{\mathrm{G}i}\)</span> is the global working covariance for block <span class="math inline">\(i\)</span>.</p>
+<p>However, it is probably faster to create an <span class="math inline">\(P\times N\)</span> estimation matrix <span class="math display">\[
+\hat\beta_{\mathrm{G}} = \left((X^\top W_{\mathrm{G}} X)^{-1}X^\top W_{\mathrm{G}}\right)Y,
+\]</span> and apply to all data at once, where <span class="math inline">\(W_{\mathrm{G}}\)</span> is the block diagonal matrix with blocks <span class="math inline">\(W_{\mathrm{G}i}\)</span>.</p>
+<p>For the sandwich estimator computation we see <span class="math display">\[
+\begin{eqnarray}
+ S &amp;=&amp;  (X^\top W_{\mathrm{G}}X)^{-1} \left(\sum_{i=1}^B X_i^\top W_{\mathrm{G}i} \hat{V}_i W_{\mathrm{G}i}X_i\right) (X^\top W_{\mathrm{G}}X)^{-1}\\
+  &amp;=&amp;  \sum_{i=1}^B (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top W_{\mathrm{Gi}} \hat{V}_i W_{\mathrm{G}i}X_i (X^\top W_{\mathrm{G}}X)^{-1}\\
+  &amp;=&amp;  \sum_{i=1}^B (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top W_{\mathrm{G}i} e_i e_i^\top W_{\mathrm{G}i}X_i (X^\top W_{\mathrm{G}}X)^{-1}\\
+   &amp;=&amp; \sum_{i=1}^B E_{\mathrm{W}i} E_{\mathrm{W}i}^\top,
+\end{eqnarray}
+\]</span> where <span class="math display">\[
+E_{\mathrm{W}i} =  (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top W_{\mathrm{G}i}e_i
+\]</span> can again be configured as a 3-way array with an outer product computed on the first two dimensions.</p>
+</div>
 
 
 
