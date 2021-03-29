@@ -432,6 +432,12 @@ E_i = (X^\top X)^{-1}X_i^\top e_i
 E_{\mathrm{W}i} =  (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top W_{\mathrm{G}i}e_i
 \]</span> can again be configured as a 3-way array with an outer product computed on the first two dimensions.</p>
 </div>
+<div id="singleton-contribution" class="section level1">
+<h1>Singleton contribution</h1>
+<p>Note that when block <span class="math inline">\(i\)</span> corresponds to but a single observation, we have <span class="math display">\[
+E_{\mathrm{W}i} E_{\mathrm{W}i}^\top =  (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top X_i  (X^\top W_{\mathrm{G}}X)^{-1}\; W_{Gi}^2e_i^2.
+\]</span> If data are particularlly poorly behaved this might corrupt the estimate. This could be addressed by pooling all such contributions to <span class="math inline">\(S\)</span> by assuming a common variance over all (or blocks) of singleton subjects.</p>
+</div>
 
 
 

@@ -104,3 +104,11 @@ $$
 E_{\mathrm{W}i} =  (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top W_{\mathrm{G}i}e_i
 $$
 can again be configured as a 3-way array with an outer product computed on the first two dimensions.
+
+# Singleton contribution
+
+Note that when block $i$ corresponds to but a single observation, we have
+$$
+E_{\mathrm{W}i} E_{\mathrm{W}i}^\top =  (X^\top W_{\mathrm{G}}X)^{-1} X_i^\top X_i  (X^\top W_{\mathrm{G}}X)^{-1}\; W_{Gi}^2e_i^2.
+$$
+If data are particularlly poorly behaved this might corrupt the estimate.  This could be addressed by pooling all such contributions to $S$ by assuming a common variance over all (or blocks) of singleton subjects.
