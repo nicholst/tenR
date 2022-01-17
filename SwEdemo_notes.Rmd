@@ -115,7 +115,7 @@ If data are particularly poorly behaved this might corrupt the estimate.  This c
 
 # Residual Adjustments and Hat Matrix with Working Covariance
 
-The residuals $e_i$ are used as plug-in estimates of $\epsilon_i$, but of course the residuals have well known heteroscedasticity and dependence not present in the unobservable errors, i.e. in the usual setting of iid errors, $\mathrm{Var}(\epsilon)=I-H$, where $H=X^\top(X^\top X)^{-1}X^\top$.  
+The residuals $e_i$ are used as plug-in estimates of $\epsilon_i$, but of course the residuals have well known heteroscedasticity and dependence not present in the unobservable errors, i.e. in the usual setting of iid errors, $\mathrm{Var}(\epsilon)=I-H$, where $H=X(X^\top X)^{-1}X^\top$.  
 Within the econometrics literature concerned with only with heteroscedasticity errors (not clustered errors), there is an boundless stream of papers evaluating and proposing different residual adjustments that account for residual-forming-induced heteroscedasticity.  
 The R package `sandwich`'s vignette "Econometric Computing with HC and HAC Covariance Matrix Estimators" covers most, but Salem et al. (2019) covers even more.  
 All of the residual adjustments are based on the (OLS) leverage values
@@ -125,29 +125,55 @@ $$
 Investigations by Bryan Guillaume suggested that all of these corrections work pretty similarly, but is now apparent he wasn't considering the case of highly skewed design matrix that produce highly influential observations, which in turn produce highly deflated residual values.  
 In the high-influence design setting, the common obvious correction (known as HC2), where residuals are scaled by $(\mathrm{Var}(\epsilon)_{ii})^{-1/2}=1/\sqrt{1-h_{ii}})$, performs very poorly.  The problem is that this insufficiently accounts for the deflation of the residual from a high-influence design matrix row.  Hence all of the corrections amount to computing higher powers of $1-h_{ii}$ to induce a strong inflation of the problem residuals.
 
-When we are using an identity working covariance matrix, we are using OLS estimates and the hat matrix is well defined.  
-However, none of the econometrics literature considers the case when you have a non-identity working covariance $W$.  
-(To be fair, for a single univarate dataset there probably aren't any good choices for $W$, but in imaging we can of course pool across voxels to construct a reasonable $W$.)
-Hence, now there is ambiguity:  Is the 'hat matrix' the matrix that transforms $Y$ to a prediction of $\hat{Y}$ using the working covariance, i.e. using $\hat{\beta}_{\mathrm{G}}$  That is, is it
+When we are using an identity working covariance matrix, we are using OLS estimates and the hat matrix is well defined.   However, none of the econometrics literature considers the case when you have a non-identity working covariance $V=W^{-1}$. (To be fair, for a single univarate dataset there probably aren't any good choices for $V$, but in imaging we can of course pool across voxels to construct a reasonable $V$.)
+Hence, now there is ambiguity:  Is the 'hat matrix' the matrix that transforms $Y$ to a prediction of $\hat{Y}$ using the working covariance?  Or is the 'hat matrix' the matrix that transformes the whitened data $W^{1/2}Y$ to a prediction in the whitened space.  
+The most intiutive approach would seem to be the first option,
 $$
 \hat{Y}_{\mathrm{G}} = X\hat{\beta}_{\mathrm{G}}=X\left((X^\top W_{\mathrm{G}} X)^{-1}X^\top W_{\mathrm{G}}\right)Y
 $$
 which implies an asymmetric (but still idempotent) hat matrix
 
 $$
-H = X(X^\top W_{\mathrm{G}} X)^{-1}X^\top W_{\mathrm{G}}?
+H = X(X^\top W_{\mathrm{G}} X)^{-1}X^\top W_{\mathrm{G}}.
 $$
 It turns out that the proof of $0 \leq h_{ii} \leq 1$ depends on $H$ being symmetric, and empirically you see $h_{ii}<0$ when $X$ has skewed (e.g. rare binary) predictors if you use this hat matrix.
 
-Alternatively, you can work in the whitened domain, where data and design have been pre-multiplied by $W^{1/2}$.  You can then regard the hat matrix to be that which transforms whitened data $Y^*_{\mathrm{G}}=W^{1/2}_{\mathrm{G}}Y$ into a whitened prediction $\hat{Y}^*_{\mathrm{G}}$: $$
-\hat{Y}^*_{\mathrm{G}} = W^{1/2}_{\mathrm{G}}X\hat{\beta}_G = W^{1/2}_{\mathrm{G}}X(X^\top W_{\mathrm{G}} X)^{-1}X^\top W_{\mathrm{G}}^{1/2} Y^*.
+*However* recall the residual variance $1-h_{ii}=(I-H)_{ii}$ only applies for OLS.  In the SwE setting
 $$
-In this case we again have a symmetric hat matrix
+\begin{eqnarray}
+\mathrm{Var}(e) &=& \mathrm{Var}(Y-X\hat{\beta}_{\mathrm{G}})\\
+ &=& \mathrm{Var}((I-X(X'W_{\mathrm{G}}X)^{-1}X'W_{\mathrm{G}})Y)\\
+ &=& ((I-X(X'W_{\mathrm{G}}X)^{-1}X'W_{\mathrm{G}})\mathrm{Var}(Y)((I-X(X'W_{\mathrm{G}}X)^{-1}X'W_{\mathrm{G}})^\top
+\end{eqnarray}
 $$
-H_{\mathrm{G}} = W^{1/2}_{\mathrm{G}}X(X^\top W_{\mathrm{G}} X)^{-1}X^\top W^{1/2}_{\mathrm{G}}.
+We can simplfy this, noting
+$$
+\begin{eqnarray}
+I-X(X'W_{\mathrm{G}}X)^{-1}X'W_{\mathrm{G}}  &=& W_{\mathrm{G}}^{-1/2}(I-W_{\mathrm{G}}^{1/2}X(X'W_{\mathrm{G}}X)^{-1}X'W^{1/2}_{\mathrm{G}})W^{1/2}_{\mathrm{G}}\\
+ &=& W_{\mathrm{G}}^{-1/2}(I-H_{\mathrm{G}})W^{1/2}_{\mathrm{G}}
+\end{eqnarray}
+$$
+where 
+$$
+H_{\mathrm{G}}= W^{1/2}_{\mathrm{G}}X(X^\top W_{\mathrm{G}} X)^{-1}X^\top W^{1/2}_{\mathrm{G}}
+$$
+is the hat matrix found with a whitened design matrix $X^*=W^{1/2}_{\mathrm{G}}X$, used to multiply whitened data $Y^*_{\mathrm{G}}=W^{1/2}_{\mathrm{G}}Y$ into a whitened prediction $\hat{Y}^*_{\mathrm{G}} = X^* \hat{\beta}_{\mathrm{G}} =H_{\mathrm{G}} Y^*$.
+
+*If* we were to assume $\mathrm{Var}(\epsilon)\approx V_{\mathrm{G}}$, then
+$$
+\begin{eqnarray}
+\mathrm{Var}(e) &=& W_{\mathrm{G}}^{-1/2}(I-H_{\mathrm{G}})W^{1/2}_{\mathrm{G}}\mathrm{Var}(Y)W_{\mathrm{G}}^{1/2}(I-H_{\mathrm{G}})W^{-1/2}_{\mathrm{G}}\\
+ &\approx& W_{\mathrm{G}}^{-1/2}(I-H_{\mathrm{G}})W^{-1/2}_{\mathrm{G}}\\
+&=& I- W_{\mathrm{G}}^{-1/2}H_{\mathrm{G}}W^{-1/2}_{\mathrm{G}}\\
+&=& I- X(X^\top W_{\mathrm{G}} X)^{-1}X^\top 
+\end{eqnarray}
+$$
+and so instead of just $1-h_{ii}$ we should be using residual variance
+$$
+v_{e,i} = \left( W_{\mathrm{G}}^{-1/2}(I-H_{\mathrm{G}})W^{-1/2}_{\mathrm{G}} \right)_{ii}
 $$
 
-I have opted for $H_{\mathrm{G}}$, since it avoids insanity of negative $h_{ii}$, plus it doesn't alter how you compute the residuals... i.e. since the whitened residuals $e^*$ are in fact just the residuals whitened:
+In my work in mid-Janurary 2021, I have opted for applying usual residual adjustments using $H_{\mathrm{G}}$, since it avoids insanity of negative $h_{ii}$.  It also might seem crazy that I could just randomly choose between the two approaches, but note that the whitened residuals are just the residuals whitened
 $$
 \begin{eqnarray}
 e^* &=& Y^*_{\mathrm{G}}-\hat{Y}^*_{\mathrm{G}}\\
@@ -157,6 +183,16 @@ e^* &=& Y^*_{\mathrm{G}}-\hat{Y}^*_{\mathrm{G}}\\
 \end{eqnarray}
 $$
 That is, the sandwich estimator with working covariance is *both* that from using working covariance with the original data, and what you'd find if you, as a pre-processing step, whitened data and model and that use identity working covariance.  But *only* the latter view produces a hat matrix that is symmetric.
+
+*However*, on reflection I'm wondering if $v_{e,i}$ is better.  The residuals $\{e_i/\sqrt{1-h^*_{ii}}\}_i$ should have unit variance but still retain the expected covariance.  I guess, in the world of GEE/SwE, where we want to allow for heteroscedasticity, this would be disastrous.  But if we *know* that we expect homogeneous variance and are only worried about heteroscedasticity, it might perform better. 
+
+I guess if you were really worried about it you could add-back the diagonal variance, i.e. scale residuals as
+$$
+ e_i\times(W_{\mathrm{G}}^{-1/2})_{ii}\;/\sqrt{v_{e,i}}.
+$$
+
+(Some quick evaluations show that  $\{e_i/\sqrt{v_{e,i}}\}_i$ doesn't help... as always, on 'good' regressors it is indistinguishable, and on bad just worse -- actually, the H3-style scaling $e_i/v_{e,i}$ actually works slightly better than $e_i/(1-h_{ii})$ for moderate P ($>0.1$)) but is worse for small P.)
+
 
 # References
 
